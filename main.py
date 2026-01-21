@@ -37,7 +37,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # Config
 # =========================
 CONFIG = {
-    "DUO_CHANNEL_ID": 1139607940232384524,
+    "DUO_CHANNEL_ID": 1462581424153559165,
     "SQUAD_CHANNEL_ID": 1462581501613969408,
     "TEAM_CHANNEL_ID": 1462581604000989298,
     "CATEGORY_ID": None
