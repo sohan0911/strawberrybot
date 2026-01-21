@@ -295,7 +295,57 @@ ROASTS = [
     "yo momma so poor she can't even pay attention",
     "yo momma so fat when she goes to the beach the whales sing 'we are family'",
     "yo momma so ugly when she tried to join an ugly contest they said sorry not today",
-]
+    "You must have a Ph.D. in stupidology.",
+    "You are like a software update. Every time I see you, I immediately think, 'Not now.'",
+    "All mistakes are fixable—except for you.",
+    "You’re the reason the divorce rate is so high.",
+    "If I don’t answer you the first time, what makes you think the next 25 will work?",
+    "I gave out all my trophies a while ago, but here’s a participation award.",
+    "A glowstick has a brighter future than you.",
+    "It’s sad what happened to your face. Oh, wait, that’s how it’s always looked?",
+    "I’m listening. I just need a minute to process so much stupid information at once.",
+    "When I look at you, I think, 'Where have you been my whole life? And can you go back there?'",
+    "Beauty is only skin deep, but ugly goes clean to the bone.",
+    "I would agree with you, but then we’d both be wrong.",
+    "You look like something that came out of a slow cooker.",
+    "It would be a great day if you accidentally used a glue stick instead of a Chapstick.",
+    "I bet I could remove 90 percent of your good looks with a moist towelette.",
+    "You’re so fake, even Barbie is jealous.",
+    "I suggest you do a little soul-searching—you may actually find one.",
+    "I know I make a lot of stupid choices, but hanging out with you was the worst of them all.",
+    "Stupidity isn’t a crime, so you’re free to go.",
+    "I was going to make a joke about your life, but I see life beat me to the punch.",
+    "It must be fun to wake up each morning knowing that you are that much closer to achieving your dreams of complete and utter mediocrity.",
+    "The truth will set you free: you’re the worst. Okay, you’re free to go.",
+    "You remind me of the end pieces of a loaf of bread—nobody wants you.",
+    "Calling you an idiot would be an insult to stupid people. You’re much worse than that.",
+    "It’s a parent’s job to raise their children right. So, looking at you, it’s obvious that yours quit after just one day.",
+    "You’re so fat, the photo I took of you last Christmas is still printing.",
+    "Your birth certificate needs to be rewritten as a letter of apology.",
+    "It must be nice to never use your brain.",
+    "Hey, don’t stand too close to the fire. Plastic melts, you know.",
+    "I’ll never forget the first time we met each other—but I promise I’ll keep trying.",
+    "You’re just like a broken pencil—totally pointless.",
+    "If idiots could fly, your house would be an airport.",
+    "You bring everyone so much joy, especially when you leave a room.",
+    "You have miles to go before you reach mediocre.",
+    "You say I look ugly today? Good, I was trying to look like you.",
+    "You’re dumber than a rock. At least a rock can hold a door open. What can you do?",
+    "I used to believe in evolution until I met you. Now I’m not so sure.",
+    "Don’t worry about me. Just worry about your eyebrows.",
+    "I promise I’m not insulting you, I’m just describing you.",
+    "I’d love to stay and chat, but I’d rather have open-heart surgery.",
+    "Your face looks like something I’d draw with my left hand.",
+    "You’re the reason that tubes of toothpaste have instructions on them.",
+    "Uh oh! I smell smoke… are you thinking too hard again?",
+    "Look on the bright side, if genius skips a generation, your kids will be absolutely brilliant.",
+    "If I throw a stick for you, will you leave?",
+    "I am unwilling to have a battle of wits with an unarmed opponent like yourself.",
+    "The closest you’ll ever come to a brainstorm is a light drizzle.",
+    "I don’t have the time (or enough crayons) to explain this to you.",
+    "Congrats on getting your PhD in annoyance.",
+    "If I had just one wish, it would be that you step on a LEGO while barefoot today."
+    ]
 
 
 @bot.command()
@@ -306,6 +356,71 @@ async def roast(ctx, member: discord.Member):
 
     roast = random.choice(ROASTS)
     await ctx.send(f"🔥 {member.mention} {roast}")
+
+
+RIZZ = [
+    "Timro nickname ta blanket hola hai, herdai patyau patyau lagne raixau. https://c.tenor.com/lkXE8nvV6JsAAAAd/tenor.gif",
+    "Are you Bhimsen Thapa ?? because you just erected my dharahara https://c.tenor.com/hlXzfw9TqK8AAAAd/tenor.gif",
+    "hamlai pani maya le hera na parbatiiiii https://c.tenor.com/Rd8FQYPG2EwAAAAd/tenor.gif",
+    "Are you Rajesh Hamal? Cuz, every time I see you I just want to say HEYY!!! https://c.tenor.com/vRs8EyzQvY4AAAAd/tenor.gif",
+    "Bango bango thiye, sidha bhaye ma. Timilai dekhera fida bhaye ma. Bhannu ta dherai thiyo, tara aaile chai muji bhandai bida bhaye ma. https://c.tenor.com/SJbT1KH73loAAAAd/tenor.gif",
+    "Are you Mommy ko kuchho, cause you hit different? https://c.tenor.com/8gZEnxPT-B4AAAAd/tenor.gif",
+    "Andi Mandi Jhandi Jo Mero Girlfriend Hudaina Tyo ____. https://c.tenor.com/ZARBViZffU4AAAAd/tenor.gif",
+    "Are you Mommy ko kuchho, cause you hit different? https://tenor.com/bcDRJ.gif",
+    "Timi vayena vane ta chini haleko chiya pani mitho hunna https://tenor.com/bmXLT.gif",
+    "I am not an insurance agent, but will you beema girl? https://tenor.com/buajG.gif",
+    "Timi sirak ta haina, tara herdai pattauna manlagyo https://tenor.com/sFvUQEMt8tN.gif",
+    "Timro photo pathau na, ma taas kheldai thiye, mero Rani nei harayo k https://tenor.com/bVB8x.gif",
+    "Are you from Samakhusi? Cause you made my Ama Khusi! https://tenor.com/7DLy.gif",
+    "Are you dozer? I can stare you all day! https://tenor.com/Vfnl.gif",
+    "If you have two kids in future and i also have two kids how many total kids we will have? (She will say 4) Nah just two https://tenor.com/bOLTL.gif",
+    "Are you Kathmandu? Cause you took my breath away! https://tenor.com/bCVC9.gif",
+    "I am gonna love you till the Melamchi ko pani arrived! (Sadly it’s here) https://tenor.com/Ae6S.gif",
+    "Is your dad biplov? Cause you are a bomb? https://tenor.com/Ae6S.gif",
+    "Your eyes are Patan ko galli, I keep getting lost in them. https://tenor.com/bcS7u.gif",
+    "Timilai sugar lagxa vanera matra ho natra mitho mitho guff hanna malai ni auxa https://tenor.com/bwe9s.gif",
+    "Are you Momo? Cause I wanna eat you Gwamma! https://tenor.com/5kSC.gif",
+    "(She: Hawa timi) You called me Hawa, I don’t think you can live without it. https://tenor.com/bQxpo.gif",
+    "Ani khana Khayou ta? https://tenor.com/Y9Hw.gif",
+    "Girl everytime I see you I feel like Aasok darji. Cuz timi vanda ramri koi chaina sansar mai. https://tenor.com/cjxLrDttXoV.gif",
+    "Raksi ta esai badnam xa, asli nasa ta timro ankha ma xa! https://tenor.com/8smf.gif",
+    "We go together like daal and bhaat! https://tenor.com/7YaC.gif",
+    "Did you call pathao? Cause I am here to pick you up! https://tenor.com/YBlm.gif",
+    "I am gonna leave you like Bagmati; wet, dirty and constantly flowing. (We pray you wont hear ghar ma didi bahini xaina) https://tenor.com/bhB4n.gif"
+]
+
+TENOR_REGEX = r"(https?://\S+\.gif)"
+
+def create_rizz_embed(author: discord.Member):
+    rizz = random.choice(RIZZ)
+
+    gif = None
+    match = re.search(TENOR_REGEX, rizz)
+    if match:
+        gif = match.group(1)
+        rizz = rizz.replace(gif, "").strip()
+
+    embed = discord.Embed(
+        description=rizz,
+        color=0xff4d6d
+    )
+    embed.set_footer(text=f"Rizz dropped by {author.display_name}")
+
+    if gif:
+        embed.set_image(url=gif)
+
+    return embed
+
+
+@bot.command()
+async def rizz(ctx, member: discord.Member = None):
+    embed = create_rizz_embed(ctx.author)
+
+    if member:
+        await ctx.send(content=member.mention, embed=embed)
+    else:
+        await ctx.send(embed=embed)
+
 
 # =========================
 # Message Moderation
