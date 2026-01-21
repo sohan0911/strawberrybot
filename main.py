@@ -79,36 +79,34 @@ async def handle_join(member, channel):
     category = guild.get_channel(CONFIG["CATEGORY_ID"]) if CONFIG["CATEGORY_ID"] else channel.category
 
     overwrites = {
-    guild.default_role: discord.PermissionOverwrite(
-        connect=True,
-        speak=True,
-        use_soundboard=True,
-        use_embedded_activities=True,
-        use_voice_activation=True, 
-        stream=True,
-    ),
-
-    member: discord.PermissionOverwrite(
-        connect=True,
-        speak=True,
-        use_soundboard=True,
-        use_embedded_activities=True,
-        use_voice_activation=True, 
-        stream=True,
-    ),
-
-    guild.me: discord.PermissionOverwrite(
-        connect=True,
-        speak=True,
-        use_soundboard=True,
-        use_embedded_activities=True,
-        use_voice_activation=True, 
-        stream=True,
-    )
-    }
-
-
+        guild.default_role: discord.PermissionOverwrite(
+            connect=True,
+            speak=True,
+            use_soundboard=True,
+            use_embedded_activities=True,
+            use_voice_activation=True,
+            stream=True,
+        ),
+        member: discord.PermissionOverwrite(
+            connect=True,
+            speak=True,
+            use_soundboard=True,
+            use_embedded_activities=True,
+            use_voice_activation=True,
+            stream=True,
+        ),
+        guild.me: discord.PermissionOverwrite(
+            connect=True,
+            speak=True,
+            use_soundboard=True,
+            use_embedded_activities=True,
+            use_voice_activation=True,
+            stream=True,
+        )
+        }
+    
     try:
+        # Create the voice channel
         new_channel = await guild.create_voice_channel(
             name=f"{member.name} - {prefix}",
             category=category,
@@ -118,9 +116,41 @@ async def handle_join(member, channel):
 
         await member.move_to(new_channel)
 
+        # Track the channel and owner
         active_channels.add(new_channel.id)
         channel_owners[new_channel.id] = member.id
 
+        # ----------------------------
+        # Send VC help embed
+        # ----------------------------
+
+        # Option 1: Send in a fixed text channel in the same category
+        text_channel = None
+        for ch in category.text_channels:
+            text_channel = ch
+            break
+
+        if text_channel:
+            embed = discord.Embed(
+                title="🔊 Voice Channel Commands",
+                description="Here are the commands you can use for managing your temporary voice channel:",
+                color=0x3498db
+            )
+
+            embed.add_field(name="!vc-limit <n>", value="Set the user limit for your channel", inline=False)
+            embed.add_field(name="!vc-transfer @user", value="Transfer ownership to another member", inline=False)
+            embed.add_field(name="!vc-claim", value="Claim ownership if the current owner is inactive", inline=False)
+            embed.add_field(name="!vc-owner", value="Show the current owner of the channel", inline=False)
+            embed.add_field(name="!vc-kick @user", value="Kick a member from the channel", inline=False)
+            embed.add_field(name="!vc-ban @user", value="Ban a member from your channel", inline=False)
+            embed.add_field(name="!vc-uban @user", value="Unban a previously banned member", inline=False)
+            embed.add_field(
+                name="Notes",
+                value="• Commands only work in this channel’s chat.\n• Make sure you have the necessary permissions to manage the channel.",
+                inline=False
+            )
+
+            await text_channel.send(embed=embed)
 
     except Exception as e:
         print(f"❌ Error creating VC: {e}")
