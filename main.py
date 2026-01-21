@@ -132,7 +132,7 @@ async def handle_join(member, channel):
             "`!vc-owner` - Show current owner\n"
             "`!vc-kick @user` - Kick a user\n"
             "`!vc-ban @user` - Ban a user\n"
-            "`!vc-uban @user` - Unban a user"
+            "`!vc-uban @user` - Unban a user\n"
             "`!vc-lock` - Lock the channel\n"
             "`!vc-unlock` - Unlock the channel"
         ), inline=False)
