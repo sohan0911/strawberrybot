@@ -133,6 +133,8 @@ async def handle_join(member, channel):
             "`!vc-kick @user` - Kick a user\n"
             "`!vc-ban @user` - Ban a user\n"
             "`!vc-uban @user` - Unban a user"
+            "`!vc-lock` - Lock the channel\n"
+            "`!vc-unlock` - Unlock the channel"
         ), inline=False)
         embed.set_footer(text="Commands only work in this channel's chat.")
         
@@ -270,6 +272,35 @@ async def vc_uban(ctx, member: discord.Member):
     await vc.set_permissions(member, overwrite=None)
     await ctx.send(f"✅ Unbanned {member.mention}")
 
+@bot.command(name="vc-lock")
+@is_vc_owner()
+async def vc_lock(ctx):
+    channel = ctx.author.voice.channel if ctx.author.voice else None
+
+    if not channel or channel.id not in active_channels:
+        return await ctx.send("❌ You must be in your temporary voice channel.")
+
+    await channel.set_permissions(
+        ctx.guild.default_role,
+        connect=False
+    )
+
+    await ctx.send("🔒 Voice channel locked. No one else can join.")
+
+@bot.command(name="vc-unlock")
+@is_vc_owner()
+async def vc_unlock(ctx):
+    channel = ctx.author.voice.channel if ctx.author.voice else None
+
+    if not channel or channel.id not in active_channels:
+        return await ctx.send("❌ You must be in your temporary voice channel.")
+
+    await channel.set_permissions(
+        ctx.guild.default_role,
+        connect=True
+    )
+
+    await ctx.send("🔓 Voice channel unlocked. Anyone can join.")
 
 @bot.command()
 async def chup(ctx, member: discord.Member):
