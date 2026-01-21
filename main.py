@@ -115,42 +115,26 @@ async def handle_join(member, channel):
         )
 
         await member.move_to(new_channel)
-
-        # Track the channel and owner
         active_channels.add(new_channel.id)
         channel_owners[new_channel.id] = member.id
-
-        # ----------------------------
-        # Send VC help embed
-        # ----------------------------
-
-        # Option 1: Send in a fixed text channel in the same category
-        text_channel = None
-        for ch in category.active_channels:
-            text_channel = ch
-            break
-
-        if text_channel is not None:
-            embed = discord.Embed(
-                title="🔊 Voice Channel Commands",
-                description="Here are the commands you can use for managing your temporary voice channel:",
-                color=0x3498db
-            )
-
-            embed.add_field(name="!vc-limit <n>", value="Set the user limit for your channel", inline=False)
-            embed.add_field(name="!vc-transfer @user", value="Transfer ownership to another member", inline=False)
-            embed.add_field(name="!vc-claim", value="Claim ownership if the current owner is inactive", inline=False)
-            embed.add_field(name="!vc-owner", value="Show the current owner of the channel", inline=False)
-            embed.add_field(name="!vc-kick @user", value="Kick a member from the channel", inline=False)
-            embed.add_field(name="!vc-ban @user", value="Ban a member from your channel", inline=False)
-            embed.add_field(name="!vc-uban @user", value="Unban a previously banned member", inline=False)
-            embed.add_field(
-                name="Notes",
-                value="• Commands only work in this channel’s chat.\n• Make sure you have the necessary permissions to manage the channel.",
-                inline=False
-            )
-
-            await text_channel.send(embed=embed)
+        
+        embed = discord.Embed(
+            title="🔊 Temporary Voice Channel Created", 
+            description=f"Welcome, {member.mention}! You are the owner of this channel.", 
+            color=0x3498db
+        )
+        embed.add_field(name="Available Commands", value=(
+            "`!vc-limit <n>` - Set user limit\n"
+            "`!vc-transfer @user` - Transfer ownership\n"
+            "`!vc-claim` - Claim ownership\n"
+            "`!vc-owner` - Show current owner\n"
+            "`!vc-kick @user` - Kick a user\n"
+            "`!vc-ban @user` - Ban a user\n"
+            "`!vc-uban @user` - Unban a user"
+        ), inline=False)
+        embed.set_footer(text="Commands only work in this channel's chat.")
+        
+        await new_channel.send(embed=embed)
 
     except Exception as e:
         print(f"❌ Error creating VC: {e}")
@@ -327,3 +311,4 @@ async def on_message(message):
 # Run
 # =========================
 bot.run(TOKEN)
+
