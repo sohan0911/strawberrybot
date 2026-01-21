@@ -126,7 +126,7 @@ async def handle_join(member, channel):
 
         # Option 1: Send in a fixed text channel in the same category
         text_channel = None
-        for ch in category.text_channels:
+        for ch in category.active_channels:
             text_channel = ch
             break
 
