@@ -130,7 +130,7 @@ async def handle_join(member, channel):
             text_channel = ch
             break
 
-        if text_channel:
+        if text_channel is not None:
             embed = discord.Embed(
                 title="🔊 Voice Channel Commands",
                 description="Here are the commands you can use for managing your temporary voice channel:",
