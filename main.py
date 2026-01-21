@@ -274,6 +274,10 @@ async def chup(ctx, member: discord.Member):
     await ctx.send(f"Chup muji {member.mention}")
 
 @bot.command()
+async def sut(ctx, member: discord.Member):
+    await ctx.send(f"sut muji {member.mention}")
+
+@bot.command()
 async def sorry(ctx, member: discord.Member):
     embed = discord.Embed()
     embed.set_image(url="https://c.tenor.com/xcWphzVquJ8AAAAd/tenor.gif")
