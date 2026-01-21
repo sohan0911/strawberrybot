@@ -1,6 +1,7 @@
 import os
 import logging
 import discord
+import random
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -282,6 +283,29 @@ async def sorry(ctx, member: discord.Member):
     embed = discord.Embed()
     embed.set_image(url="https://c.tenor.com/xcWphzVquJ8AAAAd/tenor.gif")
     await ctx.send(content=member.mention, embed=embed)
+
+ROASTS = [
+    "yo momma so old her birth certificate says expired",
+    "yo momma so poor when i saw her kickin a can down the street i asked what she was doin she said movin",
+    "yo momma so ugly she made u",
+    "yo momma so stupid she put airbags on her computer in case it crashed",
+    "yo momma so fat when she skips a meal the stock market drops",
+    "yo momma so lazy she stuck her nose out the window and let the wind blow it",
+    "yo momma so dumb she thought a quarterback was a refund",
+    "yo momma so poor she can't even pay attention",
+    "yo momma so fat when she goes to the beach the whales sing 'we are family'",
+    "yo momma so ugly when she tried to join an ugly contest they said sorry not today",
+]
+
+
+@bot.command()
+async def roast(ctx, member: discord.Member):
+    if member.bot:
+        await ctx.send("🤖 Roasting bots is unfair… they have feelings too.")
+        return
+
+    roast = random.choice(ROASTS)
+    await ctx.send(f"🔥 {member.mention} {roast}")
 
 # =========================
 # Message Moderation
