@@ -84,14 +84,69 @@ intents.voice_states = True
 intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+@bot.event
+async def on_member_join(member):
+    WELCOME_CHANNEL_ID = 1480002700128161861
+    intro_channel_id = 1480002707552075999
+    RULES_CHANNEL_ID = 1480002701881511938
+    GENERAL_CHANNEL_ID = 1480002705945788558
+    
+    channel = bot.get_channel(WELCOME_CHANNEL_ID)
+    if not channel:
+        return
+
+    channel2 = bot.get_channel(GENERAL_CHANNEL_ID)
+    if not channel2:
+        return
+
+    # Create the embed
+    embed1 = discord.Embed(
+        title=f"🎉 Welcome {member.name}!",
+        description=(
+            f"Welcome to **{member.guild.name} , {member.mention}!**\n\n"
+            f"Take your time to introduce yourself and get familiar with the community: <#{intro_channel_id}>\n"
+            f"Please check the rules here: <#{RULES_CHANNEL_ID}>\n"
+            f"Say hi in {bot.get_channel(GENERAL_CHANNEL_ID).mention}!"
+        ),
+        color=discord.Color.random()
+    )
+
+    # Set GIF in the embed
+    embed1.set_image(url="https://static.klipy.com/ii/71b2873e478b9d8d0482ea3ec777ba7f/dc/a3/G01Q5M7K.gif")
+
+    # Set server logo as thumbnail (small, bottom-right style)
+    embed1.set_thumbnail(url="https://media.discordapp.net/attachments/1462141976618078352/1475968615592235119/hamrokurapfp.png?ex=699f6a64&is=699e18e4&hm=9cb78a311b2a9dddee75412f9c17370519dda44170eab4e08ff67ac617db221a&=&format=webp&quality=lossless&width=352&height=352")
+
+    # Footer with member count
+    embed1.set_footer(text=f"You're member #{len(member.guild.members)}!")
+
+    embed2 = discord.Embed(
+        title=f"🎉 Welcome {member.name}!",
+        description=(
+            f"Welcome to **{member.guild.name} , {member.mention}!**\n\n"
+            f"Take your time to introduce yourself and get familiar with the community: <#{intro_channel_id}>\n"
+            f"Everyone please welcome {member.mention}!"
+        ),
+        color=discord.Color.random()
+    )
+
+    # Set server logo as thumbnail (small, bottom-right style)
+    embed2.set_thumbnail(url="https://media.discordapp.net/attachments/1462141976618078352/1475968615592235119/hamrokurapfp.png?ex=699f6a64&is=699e18e4&hm=9cb78a311b2a9dddee75412f9c17370519dda44170eab4e08ff67ac617db221a&=&format=webp&quality=lossless&width=352&height=352")
+
+    # Footer with member count
+    embed2.set_footer(text=f"You're member #{len(member.guild.members)}!")
+
+    await channel.send(f"{member.mention}", embed=embed1)
+    await channel2.send(f"{member.mention}", embed=embed2)
 # =========================
 # Config
 # =========================
 CONFIG = {
-    "DUO_CHANNEL_ID": 1465753662516367381,
-    "TRIO_CHANNEL_ID": 1480259753983873257,  # <-- PUT YOUR TRIO CHANNEL ID HERE
-    "SQUAD_CHANNEL_ID": 1465753745466982400,
-    "TEAM_CHANNEL_ID": 1465753775389282606,
+    "DUO_CHANNEL_ID": 1462541076039471319,
+    "TRIO_CHANNEL_ID": 1476919334600314962,  # <-- PUT YOUR TRIO CHANNEL ID HERE
+    "SQUAD_CHANNEL_ID": 1462541289173028864,
+    "TEAM_CHANNEL_ID": 1461889233399582813,
     "CATEGORY_ID": None
 }
 
