@@ -1,3 +1,5 @@
+
+from email.mime import message
 import os
 import logging
 import discord
@@ -5,15 +7,63 @@ import random
 import re
 from discord.ext import commands
 from dotenv import load_dotenv
-
+import threading
+from flask import Flask
+import threading
+import time
+import json
+import requests
+import aiohttp
 # =========================
 # Load Environment
 # =========================
 load_dotenv()
-TOKEN = os.getenv("DISCORD_TOKEN")
 
+TOKEN = os.getenv("DISCORD_TOKEN")
+ZENSERP_API_KEY = os.getenv("ZENSERP_API_KEY")
+USERS_FILE = "users.json"
+vc_tracking = {}
+xp_cooldowns = {}
+
+def create_xp_bar(current_xp, required_xp, bar_length=15):
+    percent = current_xp / required_xp
+    filled_length = int(bar_length * percent)
+
+    bar = "█" * filled_length + "░" * (bar_length - filled_length)
+    percentage = int(percent * 100)
+
+    return bar, percentage
+
+
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        return []
+    with open(USERS_FILE, "r") as f:
+        return json.load(f)
+
+def save_users(users):
+    with open(USERS_FILE, "w") as f:
+        json.dump(users, f, indent=4)
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in environment variables")
+
+LEVELS_FILE = "levels.json"
+import math
+
+def xp_required(level):
+    return int(50 * (level ** 1.5))
+
+def load_levels():
+    if not os.path.exists(LEVELS_FILE):
+        return {}
+    with open(LEVELS_FILE, "r") as f:
+        return json.load(f)
+
+def save_levels(data):
+    with open(LEVELS_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+levels = load_levels()
 
 # =========================
 # Logging
@@ -34,14 +84,14 @@ intents.voice_states = True
 intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-
 # =========================
 # Config
 # =========================
 CONFIG = {
-    "DUO_CHANNEL_ID": 1462581424153559165,
-    "SQUAD_CHANNEL_ID": 1462581501613969408,
-    "TEAM_CHANNEL_ID": 1462581604000989298,
+    "DUO_CHANNEL_ID": 1465753662516367381,
+    "TRIO_CHANNEL_ID": 1480259753983873257,  # <-- PUT YOUR TRIO CHANNEL ID HERE
+    "SQUAD_CHANNEL_ID": 1465753745466982400,
+    "TEAM_CHANNEL_ID": 1465753775389282606,
     "CATEGORY_ID": None
 }
 
@@ -63,6 +113,33 @@ async def on_voice_state_update(member, before, after):
 
     if before.channel and (not after.channel or before.channel.id != after.channel.id):
         await handle_leave(member, before.channel)
+    user_id = str(member.id)
+
+    # User joins VC
+    if after.channel and not before.channel:
+        vc_tracking[user_id] = time.time()
+
+    # User leaves VC
+    if before.channel and not after.channel:
+        if user_id in vc_tracking:
+            join_time = vc_tracking.pop(user_id)
+            time_spent = int((time.time() - join_time) / 60)  # minutes
+
+            if time_spent > 0:
+                if user_id not in levels:
+                    levels[user_id] = {"xp": 0, "level": 1}
+
+                levels[user_id]["xp"] += time_spent
+
+                current_level = levels[user_id]["level"]
+                required = xp_required(current_level)
+
+                while levels[user_id]["xp"] >= required:
+                    levels[user_id]["xp"] -= required
+                    levels[user_id]["level"] += 1
+                    required = xp_required(levels[user_id]["level"])
+
+                save_levels(levels)
 
 async def handle_join(member, channel):
     limit = 0
@@ -70,10 +147,16 @@ async def handle_join(member, channel):
 
     if channel.id == CONFIG["DUO_CHANNEL_ID"]:
         limit, prefix = 2, "DUO"
+
+    elif channel.id == CONFIG["TRIO_CHANNEL_ID"]:
+        limit, prefix = 3, "TRIO"
+
     elif channel.id == CONFIG["SQUAD_CHANNEL_ID"]:
-        limit, prefix = 4, "SQUAD"
+        limit, prefix = 5, "SQUAD"   # changed from 4 → 5
+
     elif channel.id == CONFIG["TEAM_CHANNEL_ID"]:
         limit, prefix = 10, "TEAM"
+
     else:
         return
 
@@ -113,7 +196,8 @@ async def handle_join(member, channel):
             name=f"{member.name} - {prefix}",
             category=category,
             user_limit=limit,
-            overwrites=overwrites
+            overwrites=overwrites,
+            bitrate=96000
         )
 
         await member.move_to(new_channel)
@@ -200,7 +284,14 @@ async def vc_transfer(ctx, member: discord.Member):
         await ctx.send("❌ User must be in the voice channel.")
         return
 
+    # Update owner
     channel_owners[vc.id] = member.id
+
+    # Keep the prefix (DUO / TRIO / etc)
+    prefix = vc.name.split(" - ")[-1] if " - " in vc.name else "VC"
+
+    # Rename channel to new owner
+    await vc.edit(name=f"{member.name} - {prefix}")
 
     await vc.set_permissions(member, manage_channels=True, move_members=True)
     await vc.set_permissions(ctx.author, manage_channels=False, move_members=False)
@@ -221,7 +312,15 @@ async def vc_claim(ctx):
         await ctx.send("❌ Owner is still in the channel.")
         return
 
+    # Update owner
     channel_owners[vc.id] = ctx.author.id
+
+    # Keep prefix
+    prefix = vc.name.split(" - ")[-1] if " - " in vc.name else "VC"
+
+    # Rename channel
+    await vc.edit(name=f"{ctx.author.name} - {prefix}")
+
     await vc.set_permissions(ctx.author, manage_channels=True, move_members=True)
 
     await ctx.send("👑 You have claimed ownership.")
@@ -456,33 +555,354 @@ async def rizz(ctx, member: discord.Member = None):
 # =========================
 # Message Moderation
 # =========================
-BAD_WORDS = {"lado", "machikney", "randi", "rando", "turi"}
+BAD_WORDS = {"lado", "machikney", "randi", "rando", "bhalu", "blueberry","arjun", "turi"}
+MUSIC_CHANNEL_ID = 1462153175912943637
+BAD_WORDS_PATTERN = re.compile(
+    r"\b(" + "|".join(re.escape(word) for word in BAD_WORDS) + r")\b",
+    re.IGNORECASE
+)
+from collections import defaultdict
 
+spam_tracker = defaultdict(list)
+
+SPAM_WINDOW = 5      # seconds
+SPAM_LIMIT = 10      # detect spam
+KEEP_MESSAGES = 5    # messages to keep
+F_RESPONSES = [
+    "🎤 {user} approves this singing 👌",
+    "👏 {user} says: that was clean!",
+    "🔥 {user} enjoyed that performance!",
+    "🎶 {user} is vibing with the singer!",
+    "💯 {user} says nice vocals!"
+]
+
+FF_RESPONSES = [
+    "🎤🔥 {user} says THAT WAS FIRE!",
+    "👏👏 {user} is impressed with those vocals!",
+    "🎶 {user} says the singer cooked!",
+    "💯 {user} says that voice is elite!",
+    "🔥 {user} is vibing HARD to that singing!"
+]
+
+CUM_RESPONSES = [
+    "🚨 {user} says THAT WAS INSANE VOCALS!",
+    "🎤💀 {user} just got blown away by that singing!",
+    "🔥 {user} says the singer absolutely COOKED!",
+    "🎶 {user} says this performance was legendary!",
+    "💎 {user} says those vocals were god tier!"
+]
 @bot.event
 async def on_message(message):
     if message.author.bot:
         return
 
-    # Let commands through first
-    if message.content.startswith(bot.command_prefix):
-        await bot.process_commands(message)
-        return
-
-    if message.content.lower().startswith("hello"):
-        await message.channel.send(f"Hello {message.author.mention}!")
-
-    if any(word in message.content.lower() for word in BAD_WORDS):
+    content = message.content.lower()
+    # =========================
+    # 2️⃣ Bad Word Detection
+    # =========================
+    if content == "mommy" and message.author.id == 1139607940232384524:
+        await message.channel.send("<@1459629173604749524>")
+                
+    if BAD_WORDS_PATTERN.search(message.content):
         try:
             await message.delete()
-        except:
+        except discord.Forbidden:
             pass
 
-        embed = discord.Embed()
+        embed = discord.Embed(color=0xff0000)
         embed.set_image(url="https://c.tenor.com/KZF6Cke4FH4AAAAd/tenor.gif")
-        await message.channel.send(message.author.mention, embed=embed)
 
-# =========================
-# Run
-# =========================
+        await message.channel.send(
+            content=message.author.mention,
+            embed=embed,
+            delete_after=5
+        )
+        return
+
+    # =========================
+    # 3️⃣ Word Triggers (ONLY in specific channel)
+    # =========================
+    if message.channel.id == MUSIC_CHANNEL_ID:
+
+        content = message.content.lower().strip()
+
+        if content in ["f", "ff", "cum", "uff"]:
+
+            user_id = message.author.id
+            now = time.time()
+
+            # Store message timestamps
+            spam_tracker[user_id].append(now)
+
+            # Remove timestamps older than 5 sec
+            spam_tracker[user_id] = [
+                t for t in spam_tracker[user_id] if now - t < SPAM_WINDOW
+            ]
+
+            # If spam detected
+            if len(spam_tracker[user_id]) > SPAM_LIMIT:
+
+                messages = []
+
+                async for msg in message.channel.history(limit=20):
+                    if msg.author == message.author and msg.content.lower().strip() == content:
+                        messages.append(msg)
+
+                # delete extra messages (keep first 5)
+                for msg in messages[KEEP_MESSAGES:]:
+                    try:
+                        await msg.delete()
+                    except:
+                        pass
+
+            # F = nice
+            if content == "f":
+                response = random.choice(F_RESPONSES)
+                await message.channel.send(response.format(user=message.author.mention))
+
+            # FF = very nice
+            elif content == "ff":
+                response = random.choice(FF_RESPONSES)
+                await message.channel.send(response.format(user=message.author.mention))
+
+            # INSANELY GOOD
+            elif content == "":
+                response = random.choice(CUM_RESPONSES)
+                await message.channel.send(response.format(user=message.author.mention))
+            
+            # UFF reaction
+            elif content == "uff":
+                embed = discord.Embed(color=0xff0000)
+                embed.set_image(url="https://static.klipy.com/ii/35ccce3d852f7995dd2da910f2abd795/25/03/7fBW7jWy.gif")
+
+                await message.channel.send(
+                    f"🎧 {message.author.mention} after hearing those vocals!",
+                    embed=embed
+                )
+    # =========================
+    # CHAT XP (1 XP per 30 sec)
+    # =========================
+    user_id = str(message.author.id)
+    now = time.time()
+
+    if user_id not in levels:
+        levels[user_id] = {"xp": 0, "level": 1}
+
+    # Check cooldown
+    if user_id not in xp_cooldowns or now - xp_cooldowns[user_id] >= 30:
+        levels[user_id]["xp"] += 1
+        xp_cooldowns[user_id] = now
+
+        current_level = levels[user_id]["level"]
+        required = xp_required(current_level)
+
+        if levels[user_id]["xp"] >= required:
+            levels[user_id]["xp"] -= required
+            levels[user_id]["level"] += 1
+
+            await message.channel.send(
+                f"🎉 {message.author.mention} reached **Level {levels[user_id]['level']}**!"
+            )
+
+    LEVEL_ROLES = {
+        5: 111111111111111111,   # Level 5 role ID
+        10: 222222222222222222,  # Level 10 role ID
+        15: 333333333333333333,
+        20: 444444444444444444
+    }
+    async def update_level_roles(member, new_level):
+        # Get all level role IDs
+        level_role_ids = LEVEL_ROLES.values()
+
+        # Remove any existing level roles
+        for role_id in level_role_ids:
+            role = member.guild.get_role(role_id)
+            if role and role in member.roles:
+                await member.remove_roles(role)
+
+        # Give new role if level matches
+        if new_level in LEVEL_ROLES:
+            new_role = member.guild.get_role(LEVEL_ROLES[new_level])
+            if new_role:
+                await member.add_roles(new_role)
+                return new_role
+
+        return None
+    save_levels(levels)
+    # =========================
+    # Always process commands LAST
+    # =========================
+    await bot.process_commands(message)
+
+@bot.command()
+@commands.cooldown(1, 10, commands.BucketType.user)
+async def google(ctx, *, query: str):
+    async with ctx.channel.typing():
+        try:
+            url = "https://app.zenserp.com/api/v2/search"
+            params = {
+                "q": query,
+                "apikey": ZENSERP_API_KEY,
+                "gl": "us",
+                "hl": "en",
+                "num": 5
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=params) as resp:
+                    if resp.status != 200:
+                        error_text = await resp.text()
+                        await ctx.send(f"❌ Zenserp API error {resp.status}")
+                        print(error_text)
+                        return
+
+                    data = await resp.json()
+
+            organic = data.get("organic")
+            if not organic:
+                await ctx.send("❌ No results found.")
+                return
+
+            message = f"🔎 **Results for:** {query}\n\n"
+
+            for i, result in enumerate(organic[:5], 1):
+                title = result.get("title", "No title")
+                link = result.get("url", "No link")
+                message += f"**{i}.** {title}\n{link}\n\n"
+
+            if len(message) > 2000:
+                message = message[:1990] + "..."
+
+            await ctx.send(message)
+
+        except Exception as e:
+            print("Zenserp error:", e)
+            # Only send error if nothing else was sent
+            if not ctx.channel.last_message or ctx.channel.last_message.author != bot.user:
+                await ctx.send("❌ Something went wrong while searching.")
+
+ALLOWED_CHANNEL_ID = 1475925227816091900
+
+
+# 🔒 Channel restriction check
+def is_allowed_channel():
+    async def predicate(ctx):
+        if ctx.channel.id != ALLOWED_CHANNEL_ID:
+            await ctx.send("❌ This command only works in the singers channel.")
+            return False
+        return True
+    return commands.check(predicate)
+
+
+# 🎤 REGISTER COMMAND
+@bot.command()
+@is_allowed_channel()
+async def register(ctx,member: discord.Member ):
+    users = load_users()
+
+    user_id = str(member.id)
+
+    if user_id in users:
+        await ctx.send("⚠️ You are already registered.")
+        return
+
+    users.append(user_id)
+    save_users(users)
+
+    await ctx.send(f"✅ {member.mention} has been registered!")
+
+
+# 📋 SINGERS LIST (EMBED)
+@bot.command()
+@is_allowed_channel()
+async def participantslist(ctx):
+    users = load_users()
+
+    if not users:
+        await ctx.send("No one is registered yet.")
+        return
+
+    embed = discord.Embed(
+        title="🎤 Registered Singers",
+        color=0x3498db
+    )
+
+    description = ""
+
+    for index, user_id in enumerate(users):
+        try:
+            user = await bot.fetch_user(int(user_id))
+            description += f"**{index + 1}.** {user.name}\n"
+        except:
+            description += f"**{index + 1}.** Unknown User\n"
+
+    embed.description = description
+    embed.set_footer(text="Commands only work in this channel.")
+
+    await ctx.send(embed=embed)
+
+
+# ❌ REMOVE USER COMMAND
+@bot.command()
+@is_allowed_channel()
+async def remove(ctx, member: discord.Member):
+    users = load_users()
+    user_id = str(member.id)
+
+    if user_id not in users:
+        await ctx.send("❌ That user is not registered.")
+        return
+
+    users.remove(user_id)
+    save_users(users)
+
+    await ctx.send(f"🗑️ {member.mention} has been removed from the list.")
+
+
+@bot.command()
+async def profile(ctx, member: discord.Member = None):
+    member = member or ctx.author
+    user_id = str(member.id)
+
+    if user_id not in levels:
+        levels[user_id] = {"xp": 0, "level": 1}
+        save_levels(levels)
+
+    xp = levels[user_id]["xp"]
+    level = levels[user_id]["level"]
+    xp_needed = level * 100
+
+    bar, percentage = create_xp_bar(xp, xp_needed)
+
+    embed = discord.Embed(
+        title=f"{member.display_name}'s Profile",
+        color=0x3498db
+    )
+
+    embed.add_field(name="⭐ Level", value=level, inline=True)
+    embed.add_field(name="📊 XP", value=f"{xp}/{xp_needed}", inline=True)
+    embed.add_field(
+        name="Progress",
+        value=f"`{bar}`\n{percentage}%",
+        inline=False
+    )
+
+    embed.set_thumbnail(url=member.display_avatar.url)
+
+    await ctx.send(embed=embed)
+
+    
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Bot is running!"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+threading.Thread(target=run_flask, daemon=True).start()
+
 bot.run(TOKEN)
 
