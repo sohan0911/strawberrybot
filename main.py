@@ -88,57 +88,40 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_member_join(member):
     WELCOME_CHANNEL_ID = 1480002700128161861
-    intro_channel_id = 1480002707552075999
-    RULES_CHANNEL_ID = 1480002701881511938
-    GENERAL_CHANNEL_ID = 1480002705945788558
+    ROLES_CHANNEL_ID = 1480002701881511938
     
     channel = bot.get_channel(WELCOME_CHANNEL_ID)
     if not channel:
         return
-
-    channel2 = bot.get_channel(GENERAL_CHANNEL_ID)
-    if not channel2:
-        return
-
+    butterfly = bot.get_emoji(1480302275405545686)
+    strawberry = bot.get_emoji(1480303247695806587)
     # Create the embed
-    embed1 = discord.Embed(
-        title=f"🎉 Welcome {member.name}!",
+    embed = discord.Embed(
         description=(
-            f"Welcome to **{member.guild.name} , {member.mention}!**\n\n"
-            f"Take your time to introduce yourself and get familiar with the community: <#{intro_channel_id}>\n"
-            f"Please check the rules here: <#{RULES_CHANNEL_ID}>\n"
-            f"Say hi in {bot.get_channel(GENERAL_CHANNEL_ID).mention}!"
+            "**────────── ୨୧ ──────────**\n\n"
+            f"Welcome {member.mention}! {butterfly} ˙ ̟ \n\n"
+            "ᓚᘏᗢ i hope u make good friends here! ୨ৎ\n\n"
+            "grab your roles at\n"
+            f"<#{ROLES_CHANNEL_ID}> ✧ {strawberry} "
         ),
-        color=discord.Color.random()
+        color=0x2b2d31
     )
 
-    # Set GIF in the embed
-    embed1.set_image(url="https://static.klipy.com/ii/71b2873e478b9d8d0482ea3ec777ba7f/dc/a3/G01Q5M7K.gif")
-
-    # Set server logo as thumbnail (small, bottom-right style)
-    embed1.set_thumbnail(url="https://media.discordapp.net/attachments/1462141976618078352/1475968615592235119/hamrokurapfp.png?ex=699f6a64&is=699e18e4&hm=9cb78a311b2a9dddee75412f9c17370519dda44170eab4e08ff67ac617db221a&=&format=webp&quality=lossless&width=352&height=352")
-
-    # Footer with member count
-    embed1.set_footer(text=f"You're member #{len(member.guild.members)}!")
-
-    embed2 = discord.Embed(
-        title=f"🎉 Welcome {member.name}!",
-        description=(
-            f"Welcome to **{member.guild.name} , {member.mention}!**\n\n"
-            f"Take your time to introduce yourself and get familiar with the community: <#{intro_channel_id}>\n"
-            f"Everyone please welcome {member.mention}!"
-        ),
-        color=discord.Color.random()
+    # Top name = user's username
+    embed.set_author(
+        name=member.display_name,
+        icon_url=member.display_avatar.url
     )
 
-    # Set server logo as thumbnail (small, bottom-right style)
-    embed2.set_thumbnail(url="https://media.discordapp.net/attachments/1462141976618078352/1475968615592235119/hamrokurapfp.png?ex=699f6a64&is=699e18e4&hm=9cb78a311b2a9dddee75412f9c17370519dda44170eab4e08ff67ac617db221a&=&format=webp&quality=lossless&width=352&height=352")
+    # Small image top right = user's profile picture
+    embed.set_thumbnail(url="https://media.discordapp.net/attachments/1480002700128161861/1480336104078049341/BBCEF239-BBE1-459F-9AE4-996F949F2199.gif?ex=69af4dee&is=69adfc6e&hm=463af01fe582c6a41640296d15745ed09f2a11661566d80662fd68b19d90f98b&=&width=743&height=392")
 
-    # Footer with member count
-    embed2.set_footer(text=f"You're member #{len(member.guild.members)}!")
+    # Big aesthetic image at bottom
+    embed.set_image(
+        url="https://media.discordapp.net/attachments/1480002700128161861/1480345000746418370/1B455F45-68D2-42AC-AE3B-CB248562B527.gif?ex=69af5637&is=69ae04b7&hm=18b462510e6da3a6a89c857e60a4679de275cc202492d955317f2c93e2990de3&=&width=1222&height=688"
+    )
 
-    await channel.send(f"{member.mention}", embed=embed1)
-    await channel2.send(f"{member.mention}", embed=embed2)
+    await channel.send(embed=embed)
 # =========================
 # Config
 # =========================
