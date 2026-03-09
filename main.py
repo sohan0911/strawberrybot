@@ -593,12 +593,8 @@ async def rizz(ctx, member: discord.Member = None):
 # =========================
 # Message Moderation
 # =========================
-BAD_WORDS = {"lado", "machikney", "randi", "rando", "bhalu", "blueberry","arjun", "turi"}
-MUSIC_CHANNEL_ID = 1462153175912943637
-BAD_WORDS_PATTERN = re.compile(
-    r"\b(" + "|".join(re.escape(word) for word in BAD_WORDS) + r")\b",
-    re.IGNORECASE
-)
+
+
 from collections import defaultdict
 
 spam_tracker = defaultdict(list)
@@ -644,82 +640,7 @@ async def on_message(message):
     if content == "good boy" and message.author.id == 1459629173604749524:
         await message.channel.send("<@1139607940232384524>") 
            
-    if BAD_WORDS_PATTERN.search(message.content):
-        try:
-            await message.delete()
-        except discord.Forbidden:
-            pass
-
-        embed = discord.Embed(color=0xff0000)
-        embed.set_image(url="https://c.tenor.com/KZF6Cke4FH4AAAAd/tenor.gif")
-
-        await message.channel.send(
-            content=message.author.mention,
-            embed=embed,
-            delete_after=5
-        )
-        return
-
-    # =========================
-    # 3️⃣ Word Triggers (ONLY in specific channel)
-    # =========================
-    if message.channel.id == MUSIC_CHANNEL_ID:
-
-        content = message.content.lower().strip()
-
-        if content in ["f", "ff", "cum", "uff"]:
-
-            user_id = message.author.id
-            now = time.time()
-
-            # Store message timestamps
-            spam_tracker[user_id].append(now)
-
-            # Remove timestamps older than 5 sec
-            spam_tracker[user_id] = [
-                t for t in spam_tracker[user_id] if now - t < SPAM_WINDOW
-            ]
-
-            # If spam detected
-            if len(spam_tracker[user_id]) > SPAM_LIMIT:
-
-                messages = []
-
-                async for msg in message.channel.history(limit=20):
-                    if msg.author == message.author and msg.content.lower().strip() == content:
-                        messages.append(msg)
-
-                # delete extra messages (keep first 5)
-                for msg in messages[KEEP_MESSAGES:]:
-                    try:
-                        await msg.delete()
-                    except:
-                        pass
-
-            # F = nice
-            if content == "f":
-                response = random.choice(F_RESPONSES)
-                await message.channel.send(response.format(user=message.author.mention))
-
-            # FF = very nice
-            elif content == "ff":
-                response = random.choice(FF_RESPONSES)
-                await message.channel.send(response.format(user=message.author.mention))
-
-            # INSANELY GOOD
-            elif content == "":
-                response = random.choice(CUM_RESPONSES)
-                await message.channel.send(response.format(user=message.author.mention))
-            
-            # UFF reaction
-            elif content == "uff":
-                embed = discord.Embed(color=0xff0000)
-                embed.set_image(url="https://static.klipy.com/ii/35ccce3d852f7995dd2da910f2abd795/25/03/7fBW7jWy.gif")
-
-                await message.channel.send(
-                    f"🎧 {message.author.mention} after hearing those vocals!",
-                    embed=embed
-                )
+    
     # =========================
     # CHAT XP (1 XP per 30 sec)
     # =========================
