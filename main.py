@@ -88,7 +88,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_member_join(member):
     WELCOME_CHANNEL_ID = 1480002700128161861
-    ROLES_CHANNEL_ID = 1480002701881511938
+    ROLES_CHANNEL_ID = 1480002699108810852
     
     channel = bot.get_channel(WELCOME_CHANNEL_ID)
     if not channel:
@@ -99,12 +99,12 @@ async def on_member_join(member):
     embed = discord.Embed(
         description=(
             "**────────── ୨୧ ──────────**\n\n"
-            f"Welcome {member.mention}! {butterfly} ˙ ̟ \n\n"
-            "ᓚᘏᗢ i hope u make good friends here! ୨ৎ\n\n"
-            "grab your roles at\n"
+            f"*Welcome* {member.mention}! {butterfly} ˙ ̟ \n\n"
+            "*ᓚᘏᗢ i hope u make good friends here! ୨ৎ*\n\n"
+            "*grab your roles at*\n"
             f"<#{ROLES_CHANNEL_ID}> ✧ {strawberry} "
         ),
-        color=0x2b2d31
+        color=0xFFD9D9
     )
 
     # Top name = user's username
@@ -640,7 +640,10 @@ async def on_message(message):
     # =========================
     if content == "mommy" and message.author.id == 1139607940232384524:
         await message.channel.send("<@1459629173604749524>")
-                
+
+    if content == "good boy" and message.author.id == 1459629173604749524:
+        await message.channel.send("<@1139607940232384524>") 
+           
     if BAD_WORDS_PATTERN.search(message.content):
         try:
             await message.delete()
