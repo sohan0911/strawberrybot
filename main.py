@@ -588,17 +588,24 @@ CUM_RESPONSES = [
     "🎶 {user} says this performance was legendary!",
     "💎 {user} says those vocals were god tier!"
 ]
+Fluffy = [
+    903299362912890891,
+    1139607940232384524,
+    1459529835331321981
+]
+
 @bot.event
 async def on_message(message):
     if message.author.bot:
         return
-
+    mommy = bot.get_emoji(1481001314845724802)
     content = message.content.lower()
     # =========================
     # 2️⃣ Bad Word Detection
     # =========================
-    if content == "mommy" and message.author.id == 1139607940232384524:
-        await message.channel.send("<@1459629173604749524>")
+    for word in Fluffy:
+        if content == "mommy" and message.author.id == word:
+            await message.channel.send(f"hi <@1459629173604749524> {mommy}")
 
     if content == "good boy" and message.author.id == 1459629173604749524:
         await message.channel.send("<@1139607940232384524>") 
