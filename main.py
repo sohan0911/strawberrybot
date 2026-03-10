@@ -85,43 +85,6 @@ intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-@bot.event
-async def on_member_join(member):
-    WELCOME_CHANNEL_ID = 1480002700128161861
-    ROLES_CHANNEL_ID = 1480002699108810852
-    
-    channel = bot.get_channel(WELCOME_CHANNEL_ID)
-    if not channel:
-        return
-    butterfly = bot.get_emoji(1480302275405545686)
-    strawberry = bot.get_emoji(1480303247695806587)
-    # Create the embed
-    embed = discord.Embed(
-        description=(
-            "**────────── ୨୧ ──────────**\n\n"
-            f"*Welcome* {member.mention}! {butterfly} ˙ ̟ \n\n"
-            "*ᓚᘏᗢ i hope u make good friends here! ୨ৎ*\n\n"
-            "*grab your roles at*\n"
-            f"<#{ROLES_CHANNEL_ID}> ✧ {strawberry} "
-        ),
-        color=0xFFD9D9
-    )
-
-    # Top name = user's username
-    embed.set_author(
-        name=member.display_name,
-        icon_url=member.display_avatar.url
-    )
-
-    # Small image top right = user's profile picture
-    embed.set_thumbnail(url="https://media.discordapp.net/attachments/1480002700128161861/1480336104078049341/BBCEF239-BBE1-459F-9AE4-996F949F2199.gif?ex=69af4dee&is=69adfc6e&hm=463af01fe582c6a41640296d15745ed09f2a11661566d80662fd68b19d90f98b&=&width=743&height=392")
-
-    # Big aesthetic image at bottom
-    embed.set_image(
-        url="https://media.discordapp.net/attachments/1480002700128161861/1480345000746418370/1B455F45-68D2-42AC-AE3B-CB248562B527.gif?ex=69af5637&is=69ae04b7&hm=18b462510e6da3a6a89c857e60a4679de275cc202492d955317f2c93e2990de3&=&width=1222&height=688"
-    )
-
-    await channel.send(embed=embed)
 # =========================
 # Config
 # =========================
