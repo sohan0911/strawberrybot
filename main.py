@@ -1,4 +1,3 @@
-
 from email.mime import message
 import os
 import logging
@@ -85,6 +84,11 @@ intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+async def on_member_join(member):
+    General_id = 1480002705945788558
+    emoji = bot.get_emoji(1480623628516069399)
+    channel = bot.get_channel(General_id)
+    await channel.send(f"*Welcome {member.mention}* ! {emoji}")
 # =========================
 # Config
 # =========================
@@ -413,8 +417,8 @@ async def sut(ctx, member: discord.Member):
 @bot.command()
 async def sorry(ctx, member: discord.Member):
     embed = discord.Embed()
-    embed.set_image(url="https://c.tenor.com/xcWphzVquJ8AAAAd/tenor.gif")
-    await ctx.send(content=member.mention, embed=embed)
+    embed.set_image(url="https://c.tenor.com/WpXfUhL-rZQAAAAd/tenor.gif")
+    await ctx.send(content=f"Sorry!! {member.mention}", embed=embed)
 
 ROASTS = [
     "yo momma so old her birth certificate says expired",
@@ -553,41 +557,6 @@ async def rizz(ctx, member: discord.Member = None):
         await ctx.send(embed=embed)
 
 
-# =========================
-# Message Moderation
-# =========================
-
-
-from collections import defaultdict
-
-spam_tracker = defaultdict(list)
-
-SPAM_WINDOW = 5      # seconds
-SPAM_LIMIT = 10      # detect spam
-KEEP_MESSAGES = 5    # messages to keep
-F_RESPONSES = [
-    "🎤 {user} approves this singing 👌",
-    "👏 {user} says: that was clean!",
-    "🔥 {user} enjoyed that performance!",
-    "🎶 {user} is vibing with the singer!",
-    "💯 {user} says nice vocals!"
-]
-
-FF_RESPONSES = [
-    "🎤🔥 {user} says THAT WAS FIRE!",
-    "👏👏 {user} is impressed with those vocals!",
-    "🎶 {user} says the singer cooked!",
-    "💯 {user} says that voice is elite!",
-    "🔥 {user} is vibing HARD to that singing!"
-]
-
-CUM_RESPONSES = [
-    "🚨 {user} says THAT WAS INSANE VOCALS!",
-    "🎤💀 {user} just got blown away by that singing!",
-    "🔥 {user} says the singer absolutely COOKED!",
-    "🎶 {user} says this performance was legendary!",
-    "💎 {user} says those vocals were god tier!"
-]
 Fluffy = [
     903299362912890891,
     1139607940232384524,
@@ -600,9 +569,7 @@ async def on_message(message):
         return
     mommy = bot.get_emoji(1481001314845724802)
     content = message.content.lower()
-    # =========================
-    # 2️⃣ Bad Word Detection
-    # =========================
+    
     for word in Fluffy:
         if content == "mommy" and message.author.id == word:
             await message.channel.send(f"hi <@1459629173604749524> {mommy}")
@@ -611,59 +578,6 @@ async def on_message(message):
         await message.channel.send("<@1139607940232384524>") 
            
     
-    # =========================
-    # CHAT XP (1 XP per 30 sec)
-    # =========================
-    user_id = str(message.author.id)
-    now = time.time()
-
-    if user_id not in levels:
-        levels[user_id] = {"xp": 0, "level": 1}
-
-    # Check cooldown
-    if user_id not in xp_cooldowns or now - xp_cooldowns[user_id] >= 30:
-        levels[user_id]["xp"] += 1
-        xp_cooldowns[user_id] = now
-
-        current_level = levels[user_id]["level"]
-        required = xp_required(current_level)
-
-        if levels[user_id]["xp"] >= required:
-            levels[user_id]["xp"] -= required
-            levels[user_id]["level"] += 1
-
-            await message.channel.send(
-                f"🎉 {message.author.mention} reached **Level {levels[user_id]['level']}**!"
-            )
-
-    LEVEL_ROLES = {
-        5: 111111111111111111,   # Level 5 role ID
-        10: 222222222222222222,  # Level 10 role ID
-        15: 333333333333333333,
-        20: 444444444444444444
-    }
-    async def update_level_roles(member, new_level):
-        # Get all level role IDs
-        level_role_ids = LEVEL_ROLES.values()
-
-        # Remove any existing level roles
-        for role_id in level_role_ids:
-            role = member.guild.get_role(role_id)
-            if role and role in member.roles:
-                await member.remove_roles(role)
-
-        # Give new role if level matches
-        if new_level in LEVEL_ROLES:
-            new_role = member.guild.get_role(LEVEL_ROLES[new_level])
-            if new_role:
-                await member.add_roles(new_role)
-                return new_role
-
-        return None
-    save_levels(levels)
-    # =========================
-    # Always process commands LAST
-    # =========================
     await bot.process_commands(message)
 
 @bot.command()
