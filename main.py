@@ -13,6 +13,7 @@ import time
 import json
 import requests
 import aiohttp
+import google.generativeai as genai
 # =========================
 # Load Environment
 # =========================
@@ -433,7 +434,28 @@ async def profile(ctx, member: discord.Member = None):
 
     await ctx.send(embed=embed)
 
-    
+GEMINI_KEY = os.getenv("GEMINI_API_KEY")
+
+genai.configure(api_key=GEMINI_KEY)
+
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+@bot.command()
+async def ai(ctx, *, prompt):
+    await ctx.typing()
+
+    try:
+        response = model.generate_content(prompt)
+        text = response.text
+        # Discord message limit
+        if len(text) > 2000:
+            text = text[:1990] + "..."
+
+        await ctx.reply(text)
+
+    except Exception as e:
+        await ctx.reply(f"Error: {e}")
+
 app = Flask(__name__)
 
 @app.route("/")
